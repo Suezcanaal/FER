@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Emotion Recognition</title>
+</head>
+<body>
+  <h2>Upload Image for Emotion Detection</h2>
+  <input type="file" id="fileInput" accept="image/*">
+  <button onclick="uploadImage()">Predict Emotion</button>
+  <p id="result"></p>
+
+  <script>
+    async function uploadImage() {
+      const fileInput = document.getElementById("fileInput").files[0];
+      if (!fileInput) {
+        alert("Please select an image first!");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = async function () {
+        const base64Image = reader.result;
+
+        const response = await fetch("http://127.0.0.1:5000/predict", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({image: base64Image})
+        });
+
+        const result = await response.json();
+        document.getElementById("result").innerText = 
+          result.error ? result.error : `Emotion: ${result.emotion} (score: ${result.score})`;
+      };
+      reader.readAsDataURL(fileInput);
+    }
+  </script>
+</body>
+</html>
